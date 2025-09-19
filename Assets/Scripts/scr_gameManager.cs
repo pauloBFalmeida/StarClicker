@@ -30,6 +30,8 @@ public class scr_gameManager : MonoBehaviour
 
     public float linhaFadeDelay = 2.5f;
     private float linhaFadeDuracao = 0f;
+    private bool linhaFadeIn = false;
+    private bool linhaFadeOut = false;
 
     private float magnitude = 6.0f;
     private int wavelenght = 0;
@@ -121,13 +123,32 @@ public class scr_gameManager : MonoBehaviour
             spawnEstrelaTempoAtual = 0f;
         }
 
-        // linhaFadeDuracao += Time.deltaTime;
-        // float alpha = Mathf.Lerp(1f, 0f, linhaFadeDuracao / linhaFadeDelay);
-        // // muda a cor da linha
-        // Color newStart = new Color(linhaEstrelas.startColor.r, linhaEstrelas.startColor.g, linhaEstrelas.startColor.b, alpha);
-        // Color newEnd = new Color(linhaEstrelas.endColor.r, linhaEstrelas.endColor.g, linhaEstrelas.endColor.b, alpha);
-        // linhaEstrelas.startColor = newStart;
-        // linhaEstrelas.endColor = newEnd;
+        // fade a linha de constelacoes
+        if (linhaFadeIn || linhaFadeOut)
+        {
+            linhaFadeDuracao += Time.deltaTime;
+            float alpha;
+            if (linhaFadeOut)
+            {
+                alpha = Mathf.Lerp(1f, 0f, linhaFadeDuracao / linhaFadeDelay);
+            }
+            else
+            {
+                alpha = Mathf.Lerp(0f, 1f, linhaFadeDuracao * 2);
+                // terminou o fade in
+                if (Mathf.Approximately(alpha, 1f))
+                {
+                    linhaFadeIn = false;
+                    linhaFadeOut = true;
+                    linhaFadeDuracao = 0f;
+                }
+            }
+            // muda a cor da linha
+            Color newStart = new Color(linhaEstrelas.startColor.r, linhaEstrelas.startColor.g, linhaEstrelas.startColor.b, alpha);
+            Color newEnd = new Color(linhaEstrelas.endColor.r, linhaEstrelas.endColor.g, linhaEstrelas.endColor.b, alpha);
+            linhaEstrelas.startColor = newStart;
+            linhaEstrelas.endColor = newEnd;
+        }
 
         DrawDebug();
     }
@@ -282,8 +303,9 @@ public class scr_gameManager : MonoBehaviour
         }
 
         // Fade
-
         linhaFadeDuracao = 0f;
+        linhaFadeIn = true;
+        linhaFadeOut = false;
     }
 
     // ---------- Debug
