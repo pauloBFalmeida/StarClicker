@@ -719,7 +719,7 @@ MonoBehaviour:
   spawnEstrelaDelayInicial: 2
   spawnEstrelaDelay: 0
   estrelaPrefab: {fileID: 3371479320575048054, guid: 039b0bc26d78b7c44b0e3b7f9ba21b25, type: 3}
-  profundidadeEstrelasTree: 1
+  profundidadeEstrelasTree: 2
   offsetLateral: {x: 0.02, y: 0.04, z: 0.02, w: 0.1}
   qntdEstrelasExtrasPorClick: 0
   linhaEstrelas: {fileID: 1578797346}
