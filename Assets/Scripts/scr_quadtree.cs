@@ -125,9 +125,9 @@ public struct Filhos<T>
 
 public class QuadtreeNode
 {
-    public Vector2 posMin;
-    public Vector2 posMid;
-    public Vector2 posMax;
+    public Vector2 posMin { get; private set; }
+    public Vector2 posMid { get; private set; }
+    public Vector2 posMax { get; private set; }
 
     private Vector2 screenSize;
 
