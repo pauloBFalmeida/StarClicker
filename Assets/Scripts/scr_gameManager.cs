@@ -227,7 +227,6 @@ public class scr_gameManager : MonoBehaviour
         if (estrelasLinhaList.Count > 1)
         {
             CriarConstelacao(estrelasLinhaList);
-            estrelasLinhaList.Clear();
         }
     }
 
@@ -246,6 +245,10 @@ public class scr_gameManager : MonoBehaviour
                 GameObject estrelaA = nodeEstrelaB.Previous.Value;
                 GameObject estrelaB = nodeEstrelaB.Value;
                 GameObject estrelaC = nodeEstrelaB.Next.Value;
+
+                // proximo nodo 
+                nodeEstrelaB = nodeEstrelaB.Next;
+
                 // transforma nos vetores AB e BC
                 Vector2 dirAB = new Vector2(
                     estrelaB.transform.position.x - estrelaA.transform.position.x,
@@ -265,8 +268,6 @@ public class scr_gameManager : MonoBehaviour
                     // criamos um apendice, a linha vai A -> B -> A -> C
                     estrelasLinhaList.AddAfter(nodeEstrelaB, estrelaA);
                 }
-                // proximo nodo 
-                nodeEstrelaB = nodeEstrelaB.Next;
             }
         }
 
