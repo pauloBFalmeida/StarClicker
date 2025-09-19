@@ -235,7 +235,7 @@ public class scr_gameManager : MonoBehaviour
         // se o angulo for menor do q isso, sao considerados colineares
         const float minAnguloColineares = 20 * (float)Math.PI / 180f; // 20 graus
 
-        if (estrelasLinhaList.Count >= 3)
+        if (estrelasLinhaList.Count >= 3 && false)
         {
             // comeca com o segundo elemento da lista
             LinkedListNode<GameObject> nodeEstrelaB = estrelasLinhaList.First.Next;
