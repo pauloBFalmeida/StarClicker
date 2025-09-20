@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
+
 
 public class scr_shop_anim : MonoBehaviour
 {
@@ -10,17 +12,15 @@ public class scr_shop_anim : MonoBehaviour
     private Vector2 targetPos;
     public float speed = 10;
 
-    public GameObject[] buttons;
-
+    public scr_shop_item[] shopItens;
 
     void Start()
     {
         rectTransform = GetComponent<RectTransform>();
         showPos = new Vector2(rectTransform.anchoredPosition.x, rectTransform.anchoredPosition.y);
-        HideMenu();
+        CompactarMenu();
     }
 
-    // Update is called once per frame
     void Update()
     {
         // Smoothly interpolate from current to target
@@ -30,25 +30,27 @@ public class scr_shop_anim : MonoBehaviour
             Time.deltaTime * speed
         );
     }
-
-    public void ShowMenu()
+    
+    public void ExtenderMenu()
     {
         targetPos = showPos;
-        AjustButtons(true);
+        AjustarMenuCompacto(false);
     }
 
-    public void HideMenu()
+    // Esconde o menu
+    public void CompactarMenu()
     {
         targetPos = showPos;
         targetPos.y = hidePosY;
-        AjustButtons(false);
+        AjustarMenuCompacto(true);
     }
 
-    private void AjustButtons(bool visible)
+    private void AjustarMenuCompacto(bool compacto)
     {
-        foreach (GameObject button in buttons)
+        // ajusta os itens do shop para o modo compacto ou extendido
+        foreach (scr_shop_item item in shopItens)
         {
-            button.SetActive(visible);
+            item.AjustarCompacto(compacto);
         }
     }
 }

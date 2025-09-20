@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 78478018}
   - component: {fileID: 78478017}
   m_Layer: 5
-  m_Name: PanelBack
+  m_Name: PanelBackMag
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -233,7 +233,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 42}
+  m_AnchoredPosition: {x: 0, y: 45}
   m_SizeDelta: {x: 942.1646, y: 76.4731}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &193491379
@@ -292,8 +292,8 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 193491382}
-          m_TargetAssemblyTypeName: scr_shop, Assembly-CSharp
-          m_MethodName: ShowMenu
+          m_TargetAssemblyTypeName: scr_shop_anim, Assembly-CSharp
+          m_MethodName: ExtenderMenu
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -308,8 +308,8 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 193491382}
-          m_TargetAssemblyTypeName: scr_shop, Assembly-CSharp
-          m_MethodName: HideMenu
+          m_TargetAssemblyTypeName: scr_shop_anim, Assembly-CSharp
+          m_MethodName: CompactarMenu
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -331,12 +331,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd10bc55037e462469d7d728cd4da952, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hidePosY: -38
+  hidePosY: -3
   speed: 10
-  buttons:
-  - {fileID: 481600158}
-  - {fileID: 1357611237}
-  - {fileID: 1624854467}
+  shopItens:
+  - {fileID: 1688176417}
+  - {fileID: 826083008}
+  - {fileID: 1456579513}
+  - {fileID: 1746533881}
 --- !u!1 &208538430
 GameObject:
   m_ObjectHideFlags: 0
@@ -349,7 +350,7 @@ GameObject:
   - component: {fileID: 208538433}
   - component: {fileID: 208538432}
   m_Layer: 5
-  m_Name: PanelBack
+  m_Name: PanelBackConst
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -695,7 +696,9 @@ GameObject:
   m_Component:
   - component: {fileID: 418153615}
   - component: {fileID: 418153614}
+  - component: {fileID: 418153618}
   - component: {fileID: 418153616}
+  - component: {fileID: 418153617}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -715,15 +718,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d2b29946eedc5743acd8ece30004338, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shop: {fileID: 418153616}
   spawnEstrelaDelayInicial: 2
   spawnEstrelaDelay: 0
   estrelaPrefab: {fileID: 3371479320575048054, guid: 039b0bc26d78b7c44b0e3b7f9ba21b25, type: 3}
   profundidadeEstrelasTree: 2
-  offsetLateral: {x: 0.02, y: 0.04, z: 0.02, w: 0.1}
-  qntdEstrelasExtrasPorClick: 0
+  offsetLateral: {x: 0.02, y: 0.04, z: 0.02, w: 0.12}
   linhaEstrelas: {fileID: 1578797346}
-  linhaFadeDelay: 2.5
+  linhaFadeDelay: 1.5
 --- !u!4 &418153615
 Transform:
   m_ObjectHideFlags: 0
@@ -751,8 +752,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 936caab54f1951d4d95e1bbd982d4e13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dinheiros: 00000000000000000000000000000000000000000000000000000000000000000000000000000000
-  prefixos: 20006b004d0047005400500045005a00590052005100
   botoesUpgradesList:
   - upgrade: 2
     obj: {fileID: 1624854467}
@@ -762,19 +761,51 @@ MonoBehaviour:
     obj: {fileID: 481600158}
   precoInicialUpgradesList:
   - upgrade: 2
-    valor: 300
+    preco:
+      valor: 2
+      prefixId: 1
   - upgrade: 1
-    valor: 10
+    preco:
+      valor: 50
+      prefixId: 0
   - upgrade: 0
-    valor: 50
-  textosStatusList:
+    preco:
+      valor: 10
+      prefixId: 0
+  shopItensList:
   - upgrade: 2
-    obj: {fileID: 284952531}
+    obj: {fileID: 1456579511}
   - upgrade: 1
-    obj: {fileID: 1776319005}
+    obj: {fileID: 826083006}
   - upgrade: 0
-    obj: {fileID: 273999173}
-  textoTMPDinheiro: {fileID: 952396367}
+    obj: {fileID: 1688176415}
+  shopItemColStars: {fileID: 1746533881}
+--- !u!114 &418153617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 418153613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a89a77338c2eb94586361e1e7298d2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tamConstelacao: 0
+--- !u!114 &418153618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 418153613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63d7d6444cb30c84793fb7234b05f70f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  valores: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 --- !u!1 &453711366
 GameObject:
   m_ObjectHideFlags: 0
@@ -965,7 +996,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &514711089
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1064,7 +1095,7 @@ GameObject:
   - component: {fileID: 607338068}
   - component: {fileID: 607338067}
   m_Layer: 5
-  m_Name: ImageEsq
+  m_Name: ImageEsqWave
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1277,7 +1308,7 @@ GameObject:
   - component: {fileID: 652474922}
   - component: {fileID: 652474921}
   m_Layer: 5
-  m_Name: ImageEsq
+  m_Name: ImageEsqConst
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1574,6 +1605,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 826083007}
+  - component: {fileID: 826083008}
   m_Layer: 5
   m_Name: WaveLenght
   m_TagString: Untagged
@@ -1606,6 +1638,29 @@ RectTransform:
   m_AnchoredPosition: {x: 60.582306, y: 32.873413}
   m_SizeDelta: {x: 144.69452, y: 41.218002}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &826083008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 826083006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5df9cc7136e37f941834e340267e766d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objEsq: {fileID: 607338065}
+  objMid: {fileID: 992335822}
+  objDir: {fileID: 1585725410}
+  objText: {fileID: 1776319005}
+  offsetCompactaEsq: {x: 0, y: 0}
+  offsetCompactaMid: {x: 56, y: 0}
+  offsetCompactaDir: {x: 38, y: 0}
+  objParaEsconderCompacta:
+  - {fileID: 1357611237}
+  - {fileID: 1817493845}
+  - {fileID: 1776319005}
 --- !u!1 &846700685
 GameObject:
   m_ObjectHideFlags: 0
@@ -1756,7 +1811,7 @@ GameObject:
   - component: {fileID: 952396368}
   - component: {fileID: 952396367}
   m_Layer: 5
-  m_Name: TextEstrelas
+  m_Name: TextColStars
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1894,7 +1949,7 @@ GameObject:
   - component: {fileID: 970001872}
   - component: {fileID: 970001871}
   m_Layer: 5
-  m_Name: ImageDir
+  m_Name: ImageDirMag
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1969,7 +2024,7 @@ GameObject:
   - component: {fileID: 992335825}
   - component: {fileID: 992335824}
   m_Layer: 5
-  m_Name: PanelBack
+  m_Name: PanelBackWave
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2537,6 +2592,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1456579512}
+  - component: {fileID: 1456579513}
   m_Layer: 5
   m_Name: Constellations
   m_TagString: Untagged
@@ -2567,6 +2623,28 @@ RectTransform:
   m_AnchoredPosition: {x: 292.16458, y: 32.873413}
   m_SizeDelta: {x: 144.69452, y: 41.218002}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1456579513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1456579511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5df9cc7136e37f941834e340267e766d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objEsq: {fileID: 652474919}
+  objMid: {fileID: 208538430}
+  objDir: {fileID: 0}
+  objText: {fileID: 284952531}
+  offsetCompactaEsq: {x: 0, y: 0}
+  offsetCompactaMid: {x: 55, y: 0}
+  offsetCompactaDir: {x: 0, y: 0}
+  objParaEsconderCompacta:
+  - {fileID: 1624854467}
+  - {fileID: 284952531}
 --- !u!1 &1572191870
 GameObject:
   m_ObjectHideFlags: 0
@@ -2818,7 +2896,7 @@ GameObject:
   - component: {fileID: 1585725413}
   - component: {fileID: 1585725412}
   m_Layer: 5
-  m_Name: ImageDir
+  m_Name: ImageDirWave
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2893,7 +2971,7 @@ GameObject:
   - component: {fileID: 1619059906}
   - component: {fileID: 1619059905}
   m_Layer: 5
-  m_Name: ImageEsq
+  m_Name: ImageEsqMag
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3098,6 +3176,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1688176416}
+  - component: {fileID: 1688176417}
   m_Layer: 5
   m_Name: Magnitude
   m_TagString: Untagged
@@ -3129,6 +3208,28 @@ RectTransform:
   m_AnchoredPosition: {x: -203, y: 32.873413}
   m_SizeDelta: {x: 144.6945, y: 41.218002}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1688176417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1688176415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5df9cc7136e37f941834e340267e766d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objEsq: {fileID: 1619059903}
+  objMid: {fileID: 78478015}
+  objDir: {fileID: 970001869}
+  objText: {fileID: 273999173}
+  offsetCompactaEsq: {x: 0, y: 0}
+  offsetCompactaMid: {x: 55, y: 0}
+  offsetCompactaDir: {x: 37, y: 0}
+  objParaEsconderCompacta:
+  - {fileID: 481600158}
+  - {fileID: 273999173}
 --- !u!1 &1746533879
 GameObject:
   m_ObjectHideFlags: 0
@@ -3138,8 +3239,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1746533880}
+  - component: {fileID: 1746533881}
   m_Layer: 5
-  m_Name: Contador
+  m_Name: ColStars
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3166,6 +3268,26 @@ RectTransform:
   m_AnchoredPosition: {x: -414.4, y: 0.23654175}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1746533881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1746533879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5df9cc7136e37f941834e340267e766d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objEsq: {fileID: 1762355030}
+  objMid: {fileID: 952396365}
+  objDir: {fileID: 0}
+  objText: {fileID: 952396365}
+  offsetCompactaEsq: {x: -32, y: 0}
+  offsetCompactaMid: {x: 32, y: -14}
+  offsetCompactaDir: {x: 0, y: 0}
+  objParaEsconderCompacta: []
 --- !u!1 &1757328266
 GameObject:
   m_ObjectHideFlags: 0
@@ -3257,7 +3379,7 @@ GameObject:
   - component: {fileID: 1762355033}
   - component: {fileID: 1762355032}
   m_Layer: 5
-  m_Name: Image
+  m_Name: ImageColStars
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3468,7 +3590,7 @@ GameObject:
   - component: {fileID: 1817493848}
   - component: {fileID: 1817493847}
   m_Layer: 5
-  m_Name: ImageMid
+  m_Name: ImageMidWave
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

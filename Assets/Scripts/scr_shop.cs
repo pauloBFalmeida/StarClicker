@@ -4,69 +4,58 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 
+
+public enum Upgrade
+{
+    Magnitude,
+    Wavelenght,
+    Constellations
+};
+
 [System.Serializable]
 public struct UpgradeObjPair
 {
-    public scr_shop.Upgrade upgrade;
+    public Upgrade upgrade;
     public GameObject obj;
 }
 
 
 [System.Serializable]
-public struct UpgradeIntPair
+public struct UpgradePrecoPair
 {
-    public scr_shop.Upgrade upgrade;
-    public int valor;
+    public Upgrade upgrade;
+    public Preco preco;
 }
 
-[System.Serializable]
-public struct ValorPrefixo
-{
-    public int valor;
-    public int prefixId;
-    public ValorPrefixo(int _valor, int _prefixId)
-    {
-        valor = _valor;
-        prefixId = _prefixId;
-    }
-}
 
 public class scr_shop : MonoBehaviour
 {
-    public enum Upgrade
-    {
-        Magnitude,
-        Wavelenght,
-        Constellations
-    };
-
-    public int[] dinheiros = new int[11];
-    public char[] prefixos = { ' ', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y', 'R', 'Q' };
-
     public List<UpgradeObjPair> botoesUpgradesList;
-    public List<UpgradeIntPair> precoInicialUpgradesList;
-    public List<UpgradeObjPair> textosStatusList;
+    public List<UpgradePrecoPair> precoInicialUpgradesList;
+    public List<UpgradeObjPair> shopItensList;
 
-    private Dictionary<Upgrade, Button> botoesUpgrades = new Dictionary<Upgrade, Button>();
-    private Dictionary<Upgrade, TMP_Text> textoTMPUpgrades = new Dictionary<Upgrade, TMP_Text>();
-    private Dictionary<Upgrade, ValorPrefixo> precoAtualUpgrades = new Dictionary<Upgrade, ValorPrefixo>();
-    private Dictionary<Upgrade, TMP_Text> textoTMPStatus = new Dictionary<Upgrade, TMP_Text>();
-    private Dictionary<Upgrade, String> textoInicialStatus = new Dictionary<Upgrade, String>();
+    private Dictionary<Upgrade, Button> botoesUpgrades = new();
+    private Dictionary<Upgrade, TMP_Text> textoTMPUpgrades = new();
+    private Dictionary<Upgrade, Preco> precoAtualUpgrades = new();
+    private Dictionary<Upgrade, scr_shop_item> shopItensUpgrades = new();
+    public scr_shop_item shopItemColStars;
     private String textoInicialUpgrades = "+\n";
-    public TMP_Text textoTMPDinheiro;
-    private String textoInicialDinheiro;
 
-
-    private scr_gameManager gamerManager;
+    private scr_moneyManager moneyManager;
+    private scr_upgradeManager upgradeManager;
+    
 
     void Start()
     {
-        gamerManager = gameObject.GetComponent<scr_gameManager>();
+        moneyManager = gameObject.GetComponent<scr_moneyManager>();
+        upgradeManager = gameObject.GetComponent<scr_upgradeManager>();
 
-        foreach (UpgradeIntPair par in precoInicialUpgradesList)
+        // ajusta o preco inicial dos upgrades
+        foreach (UpgradePrecoPair par in precoInicialUpgradesList)
         {
-            precoAtualUpgrades.Add(par.upgrade, new ValorPrefixo(par.valor, 0));
+            precoAtualUpgrades.Add(par.upgrade, par.preco);
         }
+        // pega as informacoes dos botoes
         foreach (UpgradeObjPair par in botoesUpgradesList)
         {
             GameObject botao = par.obj;
@@ -77,20 +66,14 @@ public class scr_shop : MonoBehaviour
             TMP_Text textoTMP = botao.GetComponentInChildren<TMP_Text>();
             textoTMPUpgrades.Add(par.upgrade, textoTMP);
         }
-        foreach (UpgradeObjPair par in textosStatusList)
+        // ajusta os itens do shop
+        foreach (UpgradeObjPair par in shopItensList)
         {
-            TMP_Text textoTMP = par.obj.GetComponent<TMP_Text>();
-            textoTMPStatus.Add(par.upgrade, textoTMP);
-            textoInicialStatus.Add(par.upgrade, textoTMP.text);
+            scr_shop_item shopItem = par.obj.GetComponent<scr_shop_item>();
+            shopItensUpgrades.Add(par.upgrade, shopItem);
         }
-        textoInicialDinheiro = textoTMPDinheiro.text;
 
         UpdateUIShop();
-    }
-
-    void Update()
-    {
-
     }
 
     private void UpdateUIShop()
@@ -102,118 +85,62 @@ public class scr_shop : MonoBehaviour
             // ----- update texto dos botoes de comprar upgrades
             textoTMP = textoTMPUpgrades[upgrade];
             textoInicial = textoInicialUpgrades;
-            ValorPrefixo preco = precoAtualUpgrades[upgrade];
-            
-            textoTMP.text = textoInicial + preco.valor + prefixos[preco.prefixId];
+            Preco preco = precoAtualUpgrades[upgrade];
+
+            textoTMP.text = textoInicial + preco.valor + moneyManager.prefixos[preco.prefixId];
             // se pode comprar, se nao esta no maximo ja
             bool podeComprar = true;
-            switch (upgrade) {
-                case Upgrade.Magnitude:
-                    podeComprar = !gamerManager.IsMaxMagnitude();
-                    break;
-                case Upgrade.Wavelenght:
-                    podeComprar = !gamerManager.IsMaxWavelenght();
-                    break;
-                case Upgrade.Constellations:
-                    podeComprar = !gamerManager.IsMaxConstellations();
-                    break;
-            };
-            // se nao tem dinheiro suficente, bloqueia o botao
-            podeComprar = podeComprar && DinheiroSuficientePreco(preco);
-            botoesUpgrades[upgrade].interactable = podeComprar;
-            // ----- update texto dos status atuais
-            // pega o texto e coloca o inical
-            textoTMP = textoTMPStatus[upgrade];
-            textoInicial = textoInicialStatus[upgrade];
-            textoTMP.text = textoInicial;
-            // add o valor
             switch (upgrade)
             {
                 case Upgrade.Magnitude:
-                    textoTMP.text += gamerManager.GetMagnitude();
+                    podeComprar = !upgradeManager.IsMaxMagnitude();
                     break;
                 case Upgrade.Wavelenght:
-                    textoTMP.text += gamerManager.GetWavelenght() * 10;
-                    textoTMP.text += '%';
+                    podeComprar = !upgradeManager.IsMaxWavelenght();
                     break;
                 case Upgrade.Constellations:
-                    textoTMP.text += gamerManager.GetConstellations();
+                    podeComprar = !upgradeManager.IsMaxConstellations();
+                    break;
+            }
+            ;
+            // se nao tem dinheiro suficente, bloqueia o botao
+            podeComprar = podeComprar && moneyManager.DinheiroSuficientePreco(preco);
+            botoesUpgrades[upgrade].interactable = podeComprar;
+            
+            // ----- update texto dos status atuais
+            // pega o shop item relacionado a esse upgrade
+            scr_shop_item shopItem = shopItensUpgrades[upgrade];
+            // ajusta o texto
+            String texto = "";
+            switch (upgrade)
+            {
+                case Upgrade.Magnitude:
+                    texto += upgradeManager.GetDisplayMagnitude();
+                    break;
+                case Upgrade.Wavelenght:
+                    texto += upgradeManager.GetDisplayWavelenght();
+                    texto += '%';
+                    break;
+                case Upgrade.Constellations:
+                    texto += upgradeManager.GetDisplayConstellations();
                     break;
             };
+            shopItem.AjustarTexto(texto);
         }
         // ----- update texto do dinheiro atual
-        for (int i = dinheiros.Length - 1; i >= 0; i--)
-        {
-            if (dinheiros[i] > 0 || i == 0)
-            {
-                textoTMPDinheiro.text = textoInicialDinheiro + dinheiros[i] + ' ' + prefixos[i];
-                break;
-            }
-        }
+        shopItemColStars.AjustarTexto(moneyManager.GetDisplayDinheiro());
     }
 
-    private bool DinheiroSuficientePreco(ValorPrefixo preco)
+    public void AddDinheiro(int valor, int prefix)
     {
-        if (dinheiros[preco.prefixId] >= preco.valor)
-        {
-            return true;
-        }
-        else
-        {
-            // ve se tem dinheiro acima
-            for (int i = preco.prefixId + 1; i < dinheiros.Length; i++)
-            {
-                if (dinheiros[i] > 0)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private void RemDinheiro(int valor, int prefix) {
-        if (dinheiros[prefix] >= valor)
-        {
-            dinheiros[prefix] -= valor;
-        }
-        else
-        {
-            // percorre a cima para ver se tem valores
-            for (int i = prefix + 1; i < dinheiros.Length; i++)
-            {
-                // tem valor
-                if (dinheiros[i] > 0)
-                {
-                    // diminui 1 e add 999 no de baixo
-                    // TODO arrumar isso para 999 para todos os outros em baixo
-                    dinheiros[i] -= 1;
-                    AddDinheiro(999, i - 1, false);
-                }
-            }
-        }
-
+        moneyManager.AddDinheiro(valor, prefix);
         UpdateUIShop();
     }
 
-    public void AddDinheiro(int valor, int prefix, bool atualizarUI = true)
-    {
-        if (prefix > dinheiros.Length) { return; }
-        // add dinheiro
-        dinheiros[prefix] += valor;
-        // se passar do valor, add nos de cima
-        if (dinheiros[prefix] > 999)
-        {
-            AddDinheiro(1, prefix + 1, false);
-        }
-
-        if (atualizarUI) { UpdateUIShop(); }
-    }
-
-    private ValorPrefixo CalcularPrecoNovo(ValorPrefixo precoAtual)
+    private Preco CalcularPrecoNovo(Preco precoAtual)
     {
         // proximo preco
-        ValorPrefixo precoNovo = new ValorPrefixo(precoAtual.valor, precoAtual.prefixId);
+        Preco precoNovo = new Preco(precoAtual.valor, precoAtual.prefixId);
         // aumenta em 100
         precoNovo.valor = precoAtual.valor * 50;
         // se for acima de mil, aumenta o prefixId
@@ -225,47 +152,37 @@ public class scr_shop : MonoBehaviour
         return precoNovo;
     }
 
-    public void ClickComprarUpgradeMagnitude()
+    private void ComprarUpgradeBasico(Upgrade upgrade)
     {
-        Upgrade upgrade = Upgrade.Magnitude;
         // pega o preco
-        ValorPrefixo precoAtual = precoAtualUpgrades[upgrade];
-        RemDinheiro(precoAtual.valor, precoAtual.prefixId);
-        // melhora o upgrade
-        gamerManager.MelhorarMagnitude();
+        Preco precoAtual = precoAtualUpgrades[upgrade];
+        moneyManager.RemDinheiro(precoAtual.valor, precoAtual.prefixId);
         // atualiza o preco
         precoAtualUpgrades[upgrade] = CalcularPrecoNovo(precoAtual);
-
         // atualiza a UI
         UpdateUIShop();
+    }
+
+    public void ClickComprarUpgradeMagnitude()
+    {
+        // melhora o upgrade
+        upgradeManager.MelhorarMagnitude();
+        //
+        ComprarUpgradeBasico(Upgrade.Magnitude);
     }
 
     public void ClickComprarUpgradeWavelenght()
     {
-        Upgrade upgrade = Upgrade.Wavelenght;
-        // pega o preco
-        ValorPrefixo precoAtual = precoAtualUpgrades[upgrade];
-        RemDinheiro(precoAtual.valor, precoAtual.prefixId);
         // melhora o upgrade
-        gamerManager.MelhorarWavelenght();
-        // atualiza o preco
-        precoAtualUpgrades[upgrade] = CalcularPrecoNovo(precoAtual);
-
-        // atualiza a UI
-        UpdateUIShop();
+        upgradeManager.MelhorarWavelenght();
+        //
+        ComprarUpgradeBasico(Upgrade.Wavelenght);
     }
     public void ClickComprarUpgradeContellations()
     {
-        Upgrade upgrade = Upgrade.Constellations;
-        // pega o preco
-        ValorPrefixo precoAtual = precoAtualUpgrades[upgrade];
-        RemDinheiro(precoAtual.valor, precoAtual.prefixId);
         // melhora o upgrade
-        gamerManager.MelhorarConstellations();
-        // atualiza o preco
-        precoAtualUpgrades[upgrade] = CalcularPrecoNovo(precoAtual);
-
-        // atualiza a UI
-        UpdateUIShop();
+        upgradeManager.MelhorarConstellations();
+        //
+        ComprarUpgradeBasico(Upgrade.Constellations);
     }
 }

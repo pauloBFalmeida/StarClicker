@@ -35,7 +35,7 @@ public class scr_ninetree
         {
             node.id = id;
             id++;
-            Debug.Log("node id = " + node.id);
+            // Debug.Log("node id = " + node.id);
         }
     }
     public List<NinetreeNode> GetAllNodesFolha()

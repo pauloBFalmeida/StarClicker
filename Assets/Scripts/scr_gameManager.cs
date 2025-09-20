@@ -9,7 +9,6 @@ using UnityEngine.Rendering;
 
 public class scr_gameManager : MonoBehaviour
 {
-    public scr_shop shop;
     public float spawnEstrelaDelayInicial = 2f;
     public float spawnEstrelaDelay;
     private float spawnEstrelaTempoAtual = 0;
@@ -25,91 +24,38 @@ public class scr_gameManager : MonoBehaviour
     // X esquerdo, Z direito, Y cima, W baixo
     public Vector4 offsetLateral = new Vector4(0.05f, 0.05f, 0.05f, 0.05f);
 
-    public int qntdEstrelasExtrasPorClick = 0;
     public LineRenderer linhaEstrelas;
 
-    public float linhaFadeDelay = 2.5f;
+    public float linhaFadeDelay = 1.5f;
     private float linhaFadeDuracao = 0f;
     private bool linhaFadeIn = false;
     private bool linhaFadeOut = false;
 
-    private float magnitude = 6.0f;
-    private int wavelenght = 0;
-
-    public float maxMagnitude { get; private set; } = 16f; 
-    public int maxWavelenght { get; private set; } 
-    public int maxConstellations { get; private set; } = 40;
-
     private int estrelaCurrPrefix = 0;
-    // private int estrelaCurrPrefix = 0;
+
+    private scr_shop shop;
+    private scr_upgradeManager upgradeManager;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        // ajusta os max
-        maxWavelenght = shop.prefixos.Length -1;
-        spawnEstrelaDelay = spawnEstrelaDelayInicial;
+        shop = gameObject.GetComponent<scr_shop>();
+        upgradeManager = gameObject.GetComponent<scr_upgradeManager>();
 
-        mainCamera = Camera.main;
         // cria a Tree
+        mainCamera = Camera.main;
         Vector3 sizeViewport = new Vector3(1, 1, 0);
         Vector3 sizeWorld = mainCamera.ViewportToWorldPoint(sizeViewport);
         Vector2 screenSize = new Vector2(sizeWorld.x, sizeWorld.y);
 
         estrelas = new scr_ninetree(profundidadeEstrelasTree, screenSize);
 
-        // ??
+        // Debug ??
         estrelas.CreateId();
         Debug.Log("screenSize= " + screenSize);
-    }
-
-    // ------------------ Upgrades
-    public void MelhorarConstellations()
-    {
-        qntdEstrelasExtrasPorClick += 1;
-    }
-
-    public void MelhorarMagnitude()
-    {
-        float aumento = 0.5f;
-        magnitude += aumento;
-        // calcula quantos aumentos terao no jogo
-        float qntdAumentos = (maxMagnitude - 6.0f) / aumento;
-        // diminui o tempo atual
-        spawnEstrelaDelay -= (spawnEstrelaDelayInicial - 0.1f) / qntdAumentos;
-    }
-    public void MelhorarWavelenght()
-    {
-        wavelenght += 1;
-        estrelaCurrPrefix = wavelenght;
-    }
-
-    public int GetConstellations()
-    {
-        return qntdEstrelasExtrasPorClick;
-    }
-    
-    public float GetMagnitude()
-    {
-        return magnitude;
-    }
-    
-    public int GetWavelenght()
-    {
-        return wavelenght;
-    }
-
-    public bool IsMaxConstellations()
-    {
-        return qntdEstrelasExtrasPorClick >= maxConstellations;
-    }
-    public bool IsMaxMagnitude()
-    {
-        return magnitude >= maxMagnitude;
-    }
-    public bool IsMaxWavelenght()
-    {
-        return wavelenght >= maxWavelenght -1;
+        
+        // ajusta o spawn de estrelas
+        spawnEstrelaDelay = spawnEstrelaDelayInicial;
     }
 
     // ------------------ Estrelas
@@ -153,6 +99,11 @@ public class scr_gameManager : MonoBehaviour
         DrawDebug();
     }
 
+    public void AjustarSpawnEstrelaDelay(float novoTempo)
+    {
+        spawnEstrelaDelay = novoTempo;
+    }
+
     public void SpawnarEstrela()
     {
         // posicao relativa da camera de [0.0, 1.0]
@@ -182,6 +133,7 @@ public class scr_gameManager : MonoBehaviour
 
     public void PegarEstrela(GameObject estrela)
     {
+        int qntdEstrelasExtrasPorClick = upgradeManager.tamConstelacao;
         // array de todas as estrelas que foram pegas
         GameObject[] estrelasPegas = new GameObject[qntdEstrelasExtrasPorClick + 1];
 
@@ -256,6 +208,7 @@ public class scr_gameManager : MonoBehaviour
         // se o angulo for menor do q isso, sao considerados colineares
         const float minAnguloColineares = 20 * (float)Math.PI / 180f; // 20 graus
 
+        // desativado
         if (estrelasLinhaList.Count >= 3 && false)
         {
             // comeca com o segundo elemento da lista
