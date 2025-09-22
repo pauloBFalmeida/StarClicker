@@ -10,9 +10,11 @@ using UnityEngine.Rendering;
 
 public class scr_gameManager : MonoBehaviour
 {
-    public float spawnEstrelaDelayInicial = 2f;
-    public float spawnEstrelaDelay;
-    private float spawnEstrelaTempoAtual = 0;
+    public float spawnPorSeg = 0.5f;
+    public float spawnTimer = 0f;
+    // public float spawnEstrelaDelayInicial = 2f;
+    // public float spawnEstrelaDelay;
+    // private float spawnEstrelaTempoAtual = 0;
 
     public GameObject estrelaPrefab;
 
@@ -25,14 +27,9 @@ public class scr_gameManager : MonoBehaviour
     // X esquerdo, Z direito, Y cima, W baixo
     public Vector4 offsetLateral = new Vector4(0.05f, 0.05f, 0.05f, 0.05f);
 
-    public LineRenderer linhaEstrelas;
-
-    public float linhaFadeDelay = 1.5f;
-    private float linhaFadeDuracao = 0f;
-    private bool linhaFadeIn = false;
-    private bool linhaFadeOut = false;
-
     public int estrelaCurrPrefix = 0;
+
+    public scr_constelacao linhaConstelacao;
 
     private scr_shop shop;
 
@@ -42,7 +39,9 @@ public class scr_gameManager : MonoBehaviour
     void Start()
     {
         shop = gameObject.GetComponent<scr_shop>();
-        // upgradeManager = gameObject.GetComponent<scr_upgradeManager>();
+
+        // new Color(linhaEstrelas.startColor.r, linhaEstrelas.startColor.g, linhaEstrelas.startColor.b, 1f);
+        // linhaColorEnd = new Color(linhaEstrelas.endColor.r, linhaEstrelas.endColor.g, linhaEstrelas.endColor.b, 1f);
 
         // cria a Tree
         mainCamera = Camera.main;
@@ -55,55 +54,21 @@ public class scr_gameManager : MonoBehaviour
         // Debug ??
         estrelas.CreateId();
         Debug.Log("screenSize= " + screenSize);
-        
-        // ajusta o spawn de estrelas
-        spawnEstrelaDelay = spawnEstrelaDelayInicial;
     }
 
     // ------------------ Estrelas
     void Update()
     {
-        spawnEstrelaTempoAtual += Time.deltaTime;
-        if (spawnEstrelaTempoAtual >= spawnEstrelaDelay)
+        spawnTimer += Time.deltaTime * spawnPorSeg;
+
+        while (spawnTimer >= 1f)
         {
             SpawnarEstrela();
-            // reset o tempo
-            spawnEstrelaTempoAtual = 0f;
-        }
-
-        // fade a linha de constelacoes
-        if (linhaFadeIn || linhaFadeOut)
-        {
-            linhaFadeDuracao += Time.deltaTime;
-            float alpha;
-            if (linhaFadeOut)
-            {
-                alpha = Mathf.Lerp(1f, 0f, linhaFadeDuracao / linhaFadeDelay);
-            }
-            else
-            {
-                alpha = Mathf.Lerp(0f, 1f, linhaFadeDuracao * 2);
-                // terminou o fade in
-                if (Mathf.Approximately(alpha, 1f))
-                {
-                    linhaFadeIn = false;
-                    linhaFadeOut = true;
-                    linhaFadeDuracao = 0f;
-                }
-            }
-            // muda a cor da linha
-            Color newStart = new Color(linhaEstrelas.startColor.r, linhaEstrelas.startColor.g, linhaEstrelas.startColor.b, alpha);
-            Color newEnd = new Color(linhaEstrelas.endColor.r, linhaEstrelas.endColor.g, linhaEstrelas.endColor.b, alpha);
-            linhaEstrelas.startColor = newStart;
-            linhaEstrelas.endColor = newEnd;
+            // disconta 1 do tempo
+            spawnTimer -= 1f;
         }
 
         DrawDebug();
-    }
-
-    public void AjustarSpawnEstrelaDelay(float novoTempo)
-    {
-        spawnEstrelaDelay = novoTempo;
     }
 
     public void SpawnarEstrela()
@@ -246,24 +211,43 @@ public class scr_gameManager : MonoBehaviour
             }
         }
 
-        // ajusto o LineRenderer para o numero de pontos da minha linha
-        linhaEstrelas.positionCount = estrelasLinhaList.Count;
-        // para cada estrela na lista, marque como uma posicao da linha
-        int contador = 0;
-        foreach (GameObject estrela in estrelasLinhaList)
-        {
-            linhaEstrelas.SetPosition(contador, estrela.transform.position);
-            contador++;
-        }
-
-        // Fade
-        linhaFadeDuracao = 0f;
-        linhaFadeIn = true;
-        linhaFadeOut = false;
+        linhaConstelacao.MostrarConstelacao(estrelasLinhaList);
     }
 
+    // ---------- Funcionalidade dos Upgrades
+    public void MelhorarAcaoUpgrade(Upgrade upgrade, scr_statusItem statusItem)
+    {
+        switch (upgrade)
+        {
+            case Upgrade.Magnitude:
+                MelhorarAcaoGeracaoEstrelas();
+                break;
+            case Upgrade.Wavelength:
+                MelhorarAcaoGanhoPorEstrela();
+                break;
+            case Upgrade.Constellations:
+                MelhorarAcaoTamConstelacao(statusItem.GetValorInt());
+                break;
+        }
+    }
+
+    private void MelhorarAcaoGeracaoEstrelas()
+    {
+        spawnPorSeg *= 1.5f;
+    }
+    private void MelhorarAcaoGanhoPorEstrela()
+    {
+        
+        estrelaCurrPrefix += 1;
+    }
+    private void MelhorarAcaoTamConstelacao(int qtdeExtraEstrelas)
+    {
+        qntdEstrelasExtrasPorClick = qtdeExtraEstrelas;
+    }
+
+
     // ---------- Debug
-    
+
     private void DrawDebug()
     {
         Vector3 sizeViewport = new Vector3(1, 1, 0);
@@ -298,14 +282,14 @@ public class scr_gameManager : MonoBehaviour
                 Debug.DrawLine(posMin, posMax, color);
                 if (filhoId == 8)
                 {
-                    
+
                     Debug.DrawLine(
                         new Vector3(posMin.x, posMax.y, posMin.z),
                         new Vector3(posMax.x, posMin.y, posMin.z),
                         color);
                 }
             }
-            
+
         }
     }
 

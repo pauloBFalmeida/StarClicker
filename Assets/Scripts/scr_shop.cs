@@ -77,7 +77,6 @@ public class scr_shop : MonoBehaviour
             textoInicial = textoInicialUpgrades;
             Preco preco = statusItem.GetPrecoUpgrade();
             // atualiza o texto do botao
-            Debug.Log("verifica isMax= " + statusItem.IsMax());
             if (statusItem.IsMax())
             {
                 textoTMP.text = "Max";
@@ -132,23 +131,6 @@ public class scr_shop : MonoBehaviour
         // atualiza a UI
         UpdateUIShop();
         // melhora acao feita pelo do upgrade
-        MelhorarAcaoUpgrade(upgrade);
-    }
-
-    private void MelhorarAcaoUpgrade(Upgrade upgrade)
-    {
-        scr_statusItem statusItem = statusItemUpgrades[upgrade];
-        switch (upgrade)
-        {
-            case Upgrade.Magnitude:
-                gameManager.estrelaCurrPrefix += 1;
-                break;
-            case Upgrade.Wavelength:
-                gameManager.AjustarSpawnEstrelaDelay(0.5f);
-                break;
-            case Upgrade.Constellations:
-                gameManager.qntdEstrelasExtrasPorClick = statusItem.GetValorInt();
-                break;
-        }
+        gameManager.MelhorarAcaoUpgrade(upgrade, statusItem);
     }
 }
