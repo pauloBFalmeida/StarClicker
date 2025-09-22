@@ -40,6 +40,11 @@ public class scr_estrela : MonoBehaviour
         valor = _valor;
         prefixIndex = _prefixIndex;
     }
+    public void SetValor(Preco preco)
+    {
+        valor = preco.valor;
+        prefixIndex = preco.prefixId;
+    }
 
     public (int _valor, int _prefixIndex) GetValor()
     {

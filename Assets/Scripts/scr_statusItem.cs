@@ -25,19 +25,18 @@ public class scr_statusItem : MonoBehaviour
 
     void Start()
     {
-        switch (upgrade)
-        {
-            case Upgrade.Magnitude:
-                Debug.Log("Magnitude");
-                break;
-            case Upgrade.Wavelength:
-                Debug.Log("Wavelength");
-                break;
-            case Upgrade.Constellations:
-                Debug.Log("Constellations");
-                break;
-        }
-
+        // switch (upgrade)
+        // {
+        //     case Upgrade.Magnitude:
+        //         Debug.Log("Magnitude");
+        //         break;
+        //     case Upgrade.Wavelength:
+        //         Debug.Log("Wavelength");
+        //         break;
+        //     case Upgrade.Constellations:
+        //         Debug.Log("Constellations");
+        //         break;
+        // }
 
         precoAtual = precoInicial;
 
@@ -50,19 +49,7 @@ public class scr_statusItem : MonoBehaviour
         custoInicial = MoneyUtils.ToValor(precoInicial);
         custoFinal = MoneyUtils.ToValor(precoFinal);
         custoFinalDivInicial = custoFinal / custoInicial;
-
-
-        // Preco p = new();
-        // for (int i = 0; i <= qntdCompras; i++) {
-        //     if (i < 4 || i > qntdCompras - 2)
-        //     {
-        //         Debug.Log("preco exp " + i + " = v: " + p.valor + " p: " + p.prefixId);
-        //     }
-        // }
-
     }
-
-    // de 0 (valor Inicial) ate qntdCompras-1 (valor Final) -> inclusos
 
     public Preco GetPrecoUpgrade()
     {
@@ -75,10 +62,15 @@ public class scr_statusItem : MonoBehaviour
     }
     public bool IsMax()
     {
+        // contelacoes nao tem limite de maximo
         if (upgrade == Upgrade.Constellations) { return false; }
 
-        // return valorAtual >= valorMax;
         return qntdComprasAtual >= qntdCompras;
+    }
+
+    public float GetPorcentUpgrade()
+    {
+        return Math.Clamp(qntdComprasAtual / (float)qntdCompras, 0f, 1f);
     }
 
     public void MelhorarUpgrade()
@@ -95,7 +87,7 @@ public class scr_statusItem : MonoBehaviour
         Debug.Log("valorAtual " + valorAtual);
         AtualizarPrecoUpgrade();
     }
-    
+
     private void AtualizarPrecoUpgrade()
     {
         // aumenta o preco
@@ -105,15 +97,15 @@ public class scr_statusItem : MonoBehaviour
             qntdCompras,
             Math.Min(qntdComprasAtual, qntdCompras - 1)
         );
-        Debug.Log("atualizar atual " + qntdComprasAtual + " max " + (qntdCompras - 1));
-        Debug.Log("preco v= " + precoNovo.valor + " p= " + precoNovo.prefixId);
         precoAtual = precoNovo;
+        // Debug.Log("atualizar atual " + qntdComprasAtual + " max " + (qntdCompras - 1));
+        // Debug.Log("preco v= " + precoNovo.valor + " p= " + precoNovo.prefixId);
     }
 
 
     public String GetDisplay()
     {
-        // diferente formatacao para cada tipo
+        // diferente form9atacao para cada tipo
         switch (upgrade)
         {
             case Upgrade.Magnitude:

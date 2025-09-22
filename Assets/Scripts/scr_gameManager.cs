@@ -11,7 +11,16 @@ using UnityEngine.Rendering;
 public class scr_gameManager : MonoBehaviour
 {
     public float spawnPorSeg = 0.5f;
+    public float spawnPorSegMax = 5.0f;
+    private float spawnPorSegMin = 0f;
     private float spawnTimer = 0f;
+
+    private Preco precoEstrelaMin;
+    public Preco precoEstrelaMax = new Preco(1, 10);
+    private Preco precoEstrelaCurr = new Preco(1, 0);
+    private int waveLengthAtual;
+    // TODO mudar isso
+    private Preco precoWaveLength;
 
     public GameObject estrelaPrefab;
     private Camera mainCamera;
@@ -22,8 +31,6 @@ public class scr_gameManager : MonoBehaviour
 
     // X esquerdo, Z direito, Y cima, W baixo
     public Vector4 offsetLateral = new Vector4(0.05f, 0.05f, 0.05f, 0.05f);
-
-    public int estrelaCurrPrefix = 0;
 
     public scr_constelacao linhaConstelacao;
 
@@ -36,6 +43,8 @@ public class scr_gameManager : MonoBehaviour
     {
         shop = gameObject.GetComponent<scr_shop>();
 
+        spawnPorSegMin = spawnPorSeg;
+        precoEstrelaMin = new Preco(precoEstrelaCurr.valor, precoEstrelaCurr.prefixId);
         // cria a Tree
         CriarEstrelasTree();
     }
@@ -84,15 +93,38 @@ public class scr_gameManager : MonoBehaviour
         GameObject estrelaObj = Instantiate(estrelaPrefab, randomPoiscaoWorld, Quaternion.identity);
         scr_estrela estrela = estrelaObj.GetComponent<scr_estrela>();
 
-        // estrela.SetValor(_valor, _prefixIndex);
-        int valor = UnityEngine.Random.Range(1, 3);
-        estrela.SetValor(valor, estrelaCurrPrefix);
+        estrela.SetValor(CalcularPrecoEstrela());
 
         // Debug ???
         // adiciona ao estrela criada nas estrelas
         int nodeId = estrelas.AddGetId(estrelaObj);
         SpriteRenderer sprite = estrela.GetComponent<SpriteRenderer>();
         sprite.color = spriteColors[nodeId % spriteColors.Length];
+    }
+
+    private Preco CalcularPrecoEstrela()
+    {
+        // TODO: melhorar
+        // Preco preco = MoneyUtils.CalcularPrecoExp(
+        //     MoneyUtils.ToValor(precoEstrelaMin),
+        //     MoneyUtils.ToValor(precoEstrelaMax),
+        //     100,
+        //     waveLengthAtual
+        // );
+
+
+        // valor varia de 1 a prefixId (do valor atual)
+        double custo = MoneyUtils.ToValor(precoWaveLength);
+        custo /= 15;
+        custo = Math.Max(custo, 1f);
+        Preco preco = MoneyUtils.ToPreco(custo);
+
+        // int variacao = UnityEngine.Random.Range(1, precoEstrelaCurr.prefixId);
+        // int prefix = waveLengthAtual / 10;
+        // Preco preco = new Preco(variacao, prefix);
+
+        // Debug.Log("Preco estrela " + preco.valor + " pref " + preco.prefixId);
+        return preco;
     }
 
     public void PegarEstrela(GameObject estrela)
@@ -108,7 +140,7 @@ public class scr_gameManager : MonoBehaviour
         {
             EncontrarEstrelasProximas(estrela, qntdEstrelasExtrasPorClick, estrelasPegas);
         }
-        
+
         AdicionarPontos(estrelasPegas);
     }
 
@@ -221,10 +253,11 @@ public class scr_gameManager : MonoBehaviour
         switch (upgrade)
         {
             case Upgrade.Magnitude:
-                MelhorarAcaoGeracaoEstrelas();
+                MelhorarAcaoGeracaoEstrelas(statusItem.GetPorcentUpgrade());
                 break;
             case Upgrade.Wavelength:
-                MelhorarAcaoGanhoPorEstrela();
+                // MelhorarAcaoGanhoPorEstrela(statusItem.GetPorcentUpgrade());
+                MelhorarAcaoGanhoPorEstrela(statusItem);
                 break;
             case Upgrade.Constellations:
                 MelhorarAcaoTamConstelacao(statusItem.GetValorInt());
@@ -232,13 +265,15 @@ public class scr_gameManager : MonoBehaviour
         }
     }
 
-    private void MelhorarAcaoGeracaoEstrelas()
+    private void MelhorarAcaoGeracaoEstrelas(float porcent)
     {
-        spawnPorSeg *= 1.5f;
+        spawnPorSeg = Mathf.Lerp(spawnPorSegMin, spawnPorSegMax, porcent);
     }
-    private void MelhorarAcaoGanhoPorEstrela()
+    private void MelhorarAcaoGanhoPorEstrela(scr_statusItem statusItem)
     {
-        estrelaCurrPrefix += 1;
+        precoWaveLength = statusItem.GetPrecoUpgrade();
+        // waveLengthAtual = (int)Math.Ceiling(porcent * 100);
+        // Debug.Log("MelhorarAcaoGanhoPorEstrela porcent " + porcent + " waveLengthAtual " + waveLengthAtual);
     }
     private void MelhorarAcaoTamConstelacao(int qtdeExtraEstrelas)
     {

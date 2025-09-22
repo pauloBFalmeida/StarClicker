@@ -46,6 +46,7 @@ public static class MoneyUtils
         }
         return new Preco((int)Math.Round(numero), prefix);
     }
+    // qtdeAtual de 0 (valor Inicial) ate qtdeMax-1 (valor Final) -> inclusos
     public static Preco CalcularPrecoExp(double custoInicial, double custoFinalDivInicial, int qtdeMax, int qtdeAtual)
     {
         double t = (double)qtdeAtual / (qtdeMax -1); // 0 ate 1
