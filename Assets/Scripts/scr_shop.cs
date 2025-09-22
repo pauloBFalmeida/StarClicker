@@ -105,6 +105,11 @@ public class scr_shop : MonoBehaviour
         moneyManager.AddDinheiro(valor, prefix);
         UpdateUIShop();
     }
+    public void AddDinheiro(int[] valores)
+    {
+        moneyManager.AddDinheiro(valores);
+        UpdateUIShop();
+    }
 
     // ------------------------ Comprar upgrade
     public void ClickComprarUpgradeMagnitude()

@@ -11,13 +11,9 @@ using UnityEngine.Rendering;
 public class scr_gameManager : MonoBehaviour
 {
     public float spawnPorSeg = 0.5f;
-    public float spawnTimer = 0f;
-    // public float spawnEstrelaDelayInicial = 2f;
-    // public float spawnEstrelaDelay;
-    // private float spawnEstrelaTempoAtual = 0;
+    private float spawnTimer = 0f;
 
     public GameObject estrelaPrefab;
-
     private Camera mainCamera;
 
 
@@ -35,15 +31,17 @@ public class scr_gameManager : MonoBehaviour
 
     public int qntdEstrelasExtrasPorClick = 0;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+   
     void Start()
     {
         shop = gameObject.GetComponent<scr_shop>();
 
-        // new Color(linhaEstrelas.startColor.r, linhaEstrelas.startColor.g, linhaEstrelas.startColor.b, 1f);
-        // linhaColorEnd = new Color(linhaEstrelas.endColor.r, linhaEstrelas.endColor.g, linhaEstrelas.endColor.b, 1f);
-
         // cria a Tree
+        CriarEstrelasTree();
+    }
+
+    private void CriarEstrelasTree()
+    {
         mainCamera = Camera.main;
         Vector3 sizeViewport = new Vector3(1, 1, 0);
         Vector3 sizeWorld = mainCamera.ViewportToWorldPoint(sizeViewport);
@@ -60,9 +58,10 @@ public class scr_gameManager : MonoBehaviour
     void Update()
     {
         spawnTimer += Time.deltaTime * spawnPorSeg;
-
+        // enconquanto tempo for maior que 1, para cada unidade cria uma estrela
         while (spawnTimer >= 1f)
         {
+            // cria a estrela
             SpawnarEstrela();
             // disconta 1 do tempo
             spawnTimer -= 1f;
@@ -89,10 +88,8 @@ public class scr_gameManager : MonoBehaviour
         int valor = UnityEngine.Random.Range(1, 3);
         estrela.SetValor(valor, estrelaCurrPrefix);
 
-        // adiciona ao estrela criada nas estrelas
-        // estrelas.Add(estrelaObj);
-
         // Debug ???
+        // adiciona ao estrela criada nas estrelas
         int nodeId = estrelas.AddGetId(estrelaObj);
         SpriteRenderer sprite = estrela.GetComponent<SpriteRenderer>();
         sprite.color = spriteColors[nodeId % spriteColors.Length];
@@ -102,7 +99,7 @@ public class scr_gameManager : MonoBehaviour
     {
         // array de todas as estrelas que foram pegas
         GameObject[] estrelasPegas = new GameObject[qntdEstrelasExtrasPorClick + 1];
-
+        // marca a estrela inicial do click, e retira de estrelas
         estrelasPegas[0] = estrela;
         estrelas.Remove(estrela);
 
@@ -117,19 +114,23 @@ public class scr_gameManager : MonoBehaviour
 
     private void AdicionarPontos(GameObject[] estrelasPegas)
     {
+        // cria um buffer para os valores que vao ser adicionados
+        int[] valoresBuffer = new int[MoneyUtils.valoresLength];
+        // para cada estrela da lista, pegue o valor, e delete
         foreach (GameObject estrelaObj in estrelasPegas)
         {
             // se n for valido, pule
             if (estrelaObj == null) { continue; }
             // pega o componente scr_estrela
             scr_estrela estrelaComp = estrelaObj.GetComponent<scr_estrela>();
-            // pega o valor
+            // add valor ao buffer
             (int valor, int prefix) = estrelaComp.GetValor();
-            shop.AddDinheiro(valor, prefix);
+            valoresBuffer[prefix] += valor;
             // deleta
             estrelaComp.DiminuirDeletar();
         }
-        // Todo somar o valor aqui antes de passar pro shop
+        // Passa o buffer pro shop
+        shop.AddDinheiro(valoresBuffer);
     }
 
     private void EncontrarEstrelasProximas(GameObject estrelaInicial, int qntdExtra, GameObject[] estrelasPegas)
@@ -237,7 +238,6 @@ public class scr_gameManager : MonoBehaviour
     }
     private void MelhorarAcaoGanhoPorEstrela()
     {
-        
         estrelaCurrPrefix += 1;
     }
     private void MelhorarAcaoTamConstelacao(int qtdeExtraEstrelas)
