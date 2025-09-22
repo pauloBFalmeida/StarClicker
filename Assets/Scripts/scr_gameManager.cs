@@ -99,7 +99,13 @@ public class scr_gameManager : MonoBehaviour
         // adiciona ao estrela criada nas estrelas
         int nodeId = estrelas.AddGetId(estrelaObj);
         SpriteRenderer sprite = estrela.GetComponent<SpriteRenderer>();
-        sprite.color = spriteColors[nodeId % spriteColors.Length];
+        // coloca uma cor de identificacao do quadrado
+        Color cor = spriteColors[nodeId % spriteColors.Length];
+        // deixa mais branco
+        cor.r = (cor.r * 0.5f) + 0.5f; 
+        cor.g = (cor.g * 0.5f) + 0.5f;
+        cor.b = (cor.b * 0.5f) + 0.5f;
+        sprite.color = cor;
     }
 
     private Preco CalcularPrecoEstrela()
