@@ -8,7 +8,7 @@ using System;
 public enum Upgrade
 {
     Magnitude,
-    Wavelenght,
+    Wavelength,
     Constellations
 };
 
@@ -19,42 +19,27 @@ public struct UpgradeObjPair
     public GameObject obj;
 }
 
-
-[System.Serializable]
-public struct UpgradePrecoPair
-{
-    public Upgrade upgrade;
-    public Preco preco;
-}
-
-
 public class scr_shop : MonoBehaviour
 {
     public List<UpgradeObjPair> botoesUpgradesList;
-    public List<UpgradePrecoPair> precoInicialUpgradesList;
     public List<UpgradeObjPair> shopItensList;
 
     private Dictionary<Upgrade, Button> botoesUpgrades = new();
     private Dictionary<Upgrade, TMP_Text> textoTMPUpgrades = new();
-    private Dictionary<Upgrade, Preco> precoAtualUpgrades = new();
     private Dictionary<Upgrade, scr_shop_item> shopItensUpgrades = new();
+    private Dictionary<Upgrade, scr_statusItem> statusItemUpgrades = new();
     public scr_shop_item shopItemColStars;
     private String textoInicialUpgrades = "+\n";
 
     private scr_moneyManager moneyManager;
-    private scr_upgradeManager upgradeManager;
-    
+    private scr_gameManager gameManager;
+
 
     void Start()
     {
         moneyManager = gameObject.GetComponent<scr_moneyManager>();
-        upgradeManager = gameObject.GetComponent<scr_upgradeManager>();
+        gameManager = gameObject.GetComponent<scr_gameManager>();
 
-        // ajusta o preco inicial dos upgrades
-        foreach (UpgradePrecoPair par in precoInicialUpgradesList)
-        {
-            precoAtualUpgrades.Add(par.upgrade, par.preco);
-        }
         // pega as informacoes dos botoes
         foreach (UpgradeObjPair par in botoesUpgradesList)
         {
@@ -66,11 +51,15 @@ public class scr_shop : MonoBehaviour
             TMP_Text textoTMP = botao.GetComponentInChildren<TMP_Text>();
             textoTMPUpgrades.Add(par.upgrade, textoTMP);
         }
-        // ajusta os itens do shop
+        // ajusta os itens do shop e os upgrades itens
         foreach (UpgradeObjPair par in shopItensList)
         {
+            // shop item
             scr_shop_item shopItem = par.obj.GetComponent<scr_shop_item>();
             shopItensUpgrades.Add(par.upgrade, shopItem);
+            // upgrade item
+            scr_statusItem statusItem = par.obj.GetComponent<scr_statusItem>();
+            statusItemUpgrades.Add(par.upgrade, statusItem);
         }
 
         UpdateUIShop();
@@ -80,52 +69,33 @@ public class scr_shop : MonoBehaviour
     {
         TMP_Text textoTMP;
         String textoInicial;
-        foreach (Upgrade upgrade in new Upgrade[] { Upgrade.Magnitude, Upgrade.Wavelenght, Upgrade.Constellations })
+        foreach (Upgrade upgrade in new Upgrade[] { Upgrade.Magnitude, Upgrade.Wavelength, Upgrade.Constellations })
         {
-            // ----- update texto dos botoes de comprar upgrades
+            scr_statusItem statusItem = statusItemUpgrades[upgrade];
+            // ----- update botoes de comprar upgrades
             textoTMP = textoTMPUpgrades[upgrade];
             textoInicial = textoInicialUpgrades;
-            Preco preco = precoAtualUpgrades[upgrade];
-
-            textoTMP.text = textoInicial + preco.valor + moneyManager.prefixos[preco.prefixId];
-            // se pode comprar, se nao esta no maximo ja
-            bool podeComprar = true;
-            switch (upgrade)
+            Preco preco = statusItem.GetPrecoUpgrade();
+            // atualiza o texto do botao
+            Debug.Log("verifica isMax= " + statusItem.IsMax());
+            if (statusItem.IsMax())
             {
-                case Upgrade.Magnitude:
-                    podeComprar = !upgradeManager.IsMaxMagnitude();
-                    break;
-                case Upgrade.Wavelenght:
-                    podeComprar = !upgradeManager.IsMaxWavelenght();
-                    break;
-                case Upgrade.Constellations:
-                    podeComprar = !upgradeManager.IsMaxConstellations();
-                    break;
+                textoTMP.text = "Max";
             }
-            ;
-            // se nao tem dinheiro suficente, bloqueia o botao
-            podeComprar = podeComprar && moneyManager.DinheiroSuficientePreco(preco);
+            else
+            {
+                textoTMP.text = textoInicial + preco.valor + moneyManager.prefixos[preco.prefixId];
+            }
+            // se pode comprar, se nao esta no maximo ja e tem dinheiro suficente
+            bool podeComprar = !statusItem.IsMax() && moneyManager.DinheiroSuficientePreco(preco);
+            // se nao pode comprar, bloqueia o botao
             botoesUpgrades[upgrade].interactable = podeComprar;
-            
+
             // ----- update texto dos status atuais
             // pega o shop item relacionado a esse upgrade
             scr_shop_item shopItem = shopItensUpgrades[upgrade];
-            // ajusta o texto
-            String texto = "";
-            switch (upgrade)
-            {
-                case Upgrade.Magnitude:
-                    texto += upgradeManager.GetDisplayMagnitude();
-                    break;
-                case Upgrade.Wavelenght:
-                    texto += upgradeManager.GetDisplayWavelenght();
-                    texto += '%';
-                    break;
-                case Upgrade.Constellations:
-                    texto += upgradeManager.GetDisplayConstellations();
-                    break;
-            };
-            shopItem.AjustarTexto(texto);
+            // ajusta o texto, para o valor do upgrade item
+            shopItem.AjustarTexto(statusItem.GetDisplay());
         }
         // ----- update texto do dinheiro atual
         shopItemColStars.AjustarTexto(moneyManager.GetDisplayDinheiro());
@@ -137,52 +107,48 @@ public class scr_shop : MonoBehaviour
         UpdateUIShop();
     }
 
-    private Preco CalcularPrecoNovo(Preco precoAtual)
-    {
-        // proximo preco
-        Preco precoNovo = new Preco(precoAtual.valor, precoAtual.prefixId);
-        // aumenta em 100
-        precoNovo.valor = precoAtual.valor * 50;
-        // se for acima de mil, aumenta o prefixId
-        if (precoNovo.valor >= 1000)
-        {
-            precoNovo.valor = precoNovo.valor / 1000;
-            precoNovo.prefixId = precoAtual.prefixId + 1;
-        }
-        return precoNovo;
-    }
-
-    private void ComprarUpgradeBasico(Upgrade upgrade)
-    {
-        // pega o preco
-        Preco precoAtual = precoAtualUpgrades[upgrade];
-        moneyManager.RemDinheiro(precoAtual.valor, precoAtual.prefixId);
-        // atualiza o preco
-        precoAtualUpgrades[upgrade] = CalcularPrecoNovo(precoAtual);
-        // atualiza a UI
-        UpdateUIShop();
-    }
-
+    // ------------------------ Comprar upgrade
     public void ClickComprarUpgradeMagnitude()
     {
-        // melhora o upgrade
-        upgradeManager.MelhorarMagnitude();
-        //
         ComprarUpgradeBasico(Upgrade.Magnitude);
     }
 
-    public void ClickComprarUpgradeWavelenght()
+    public void ClickComprarUpgradeWavelength()
     {
-        // melhora o upgrade
-        upgradeManager.MelhorarWavelenght();
-        //
-        ComprarUpgradeBasico(Upgrade.Wavelenght);
+        ComprarUpgradeBasico(Upgrade.Wavelength);
     }
     public void ClickComprarUpgradeContellations()
     {
-        // melhora o upgrade
-        upgradeManager.MelhorarConstellations();
-        //
         ComprarUpgradeBasico(Upgrade.Constellations);
+    }
+    private void ComprarUpgradeBasico(Upgrade upgrade)
+    {
+        scr_statusItem statusItem = statusItemUpgrades[upgrade];
+        // pagar o preco
+        Preco precoAtual = statusItem.GetPrecoUpgrade();
+        moneyManager.RemDinheiro(precoAtual.valor, precoAtual.prefixId);
+        // atualiza os valores e preco do upgrade
+        statusItem.MelhorarUpgrade();
+        // atualiza a UI
+        UpdateUIShop();
+        // melhora acao feita pelo do upgrade
+        MelhorarAcaoUpgrade(upgrade);
+    }
+
+    private void MelhorarAcaoUpgrade(Upgrade upgrade)
+    {
+        scr_statusItem statusItem = statusItemUpgrades[upgrade];
+        switch (upgrade)
+        {
+            case Upgrade.Magnitude:
+                gameManager.estrelaCurrPrefix += 1;
+                break;
+            case Upgrade.Wavelength:
+                gameManager.AjustarSpawnEstrelaDelay(0.5f);
+                break;
+            case Upgrade.Constellations:
+                gameManager.qntdEstrelasExtrasPorClick = statusItem.GetValorInt();
+                break;
+        }
     }
 }

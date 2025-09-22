@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 
+
 public class scr_gameManager : MonoBehaviour
 {
     public float spawnEstrelaDelayInicial = 2f;
@@ -31,16 +32,17 @@ public class scr_gameManager : MonoBehaviour
     private bool linhaFadeIn = false;
     private bool linhaFadeOut = false;
 
-    private int estrelaCurrPrefix = 0;
+    public int estrelaCurrPrefix = 0;
 
     private scr_shop shop;
-    private scr_upgradeManager upgradeManager;
+
+    public int qntdEstrelasExtrasPorClick = 0;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         shop = gameObject.GetComponent<scr_shop>();
-        upgradeManager = gameObject.GetComponent<scr_upgradeManager>();
+        // upgradeManager = gameObject.GetComponent<scr_upgradeManager>();
 
         // cria a Tree
         mainCamera = Camera.main;
@@ -133,7 +135,6 @@ public class scr_gameManager : MonoBehaviour
 
     public void PegarEstrela(GameObject estrela)
     {
-        int qntdEstrelasExtrasPorClick = upgradeManager.tamConstelacao;
         // array de todas as estrelas que foram pegas
         GameObject[] estrelasPegas = new GameObject[qntdEstrelasExtrasPorClick + 1];
 

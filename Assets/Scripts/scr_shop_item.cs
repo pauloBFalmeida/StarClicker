@@ -8,7 +8,7 @@ using UnityEngine;
 public enum ShopItem
 {
     Magnitude,
-    Wavelenght,
+    Wavelength,
     Constellations,
     CollectedStars
 }
