@@ -14,6 +14,9 @@ public class scr_shop_anim : MonoBehaviour
 
     public scr_shop_item[] shopItens;
 
+    private Vector2 touchPosComeco = new();
+    private bool manterMenu = false;
+
     void Start()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -29,8 +32,51 @@ public class scr_shop_anim : MonoBehaviour
             targetPos,
             Time.deltaTime * speed
         );
+        // toque no dispositivo mobile
+        if (Input.touchCount > 0)
+        {
+            LidarTouch();
+        }
     }
-    
+
+    private void LidarTouch()
+    {
+        // toque inicial, salva a posicao
+        if (Input.GetTouch(0).phase == TouchPhase.Began)
+        {
+            touchPosComeco = Input.GetTouch(0).position;
+        }
+        else if (Input.GetTouch(0).phase == TouchPhase.Ended)
+        {
+            Vector2 touchPosFim = Input.GetTouch(0).position;
+            // swipe de uma distancia minima de 10 para evitar miss clicks
+            if ((touchPosFim - touchPosComeco).SqrMagnitude() > 100)
+            {
+                // swipe pra baixo
+                if (touchPosFim.y < touchPosComeco.y)
+                {
+                    ManterCompactarMenu();
+                }
+                // swipe pra cima
+                else
+                {
+                    ManterExtenderMenu();
+                }
+            }
+        }
+    }
+
+    private void ManterExtenderMenu()
+    {
+        manterMenu = true;
+        ExtenderMenu();
+    }
+    private void ManterCompactarMenu()
+    {
+        manterMenu = false;
+        CompactarMenu();
+    }
+
     public void ExtenderMenu()
     {
         targetPos = showPos;
@@ -40,6 +86,7 @@ public class scr_shop_anim : MonoBehaviour
     // Esconde o menu
     public void CompactarMenu()
     {
+        if (manterMenu) { return; }
         targetPos = showPos;
         targetPos.y = hidePosY;
         AjustarMenuCompacto(true);
