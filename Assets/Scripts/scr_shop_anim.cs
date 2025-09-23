@@ -86,7 +86,9 @@ public class scr_shop_anim : MonoBehaviour
     // Esconde o menu
     public void CompactarMenu()
     {
+        // nao esconde se for para manter aberto no mobile
         if (manterMenu) { return; }
+        
         targetPos = showPos;
         targetPos.y = hidePosY;
         AjustarMenuCompacto(true);
